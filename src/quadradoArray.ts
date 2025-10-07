@@ -7,7 +7,7 @@
 let array = [3,5,7,3,8,9,1];
 
 // ForEach
-function quadradoForEach(array: number[]): number[] {
+export function quadradoForEach(array: number[]): number[] {
     let novo_array: number[] = [];
 
     array.forEach((num) => {
@@ -18,7 +18,7 @@ function quadradoForEach(array: number[]): number[] {
     return novo_array;
 }
 
-function quadradoInteracao(array:number[]):Number[] {
+export function quadradoInteracao(array:number[]):Number[] {
     let novo_array: number[] = [];
 
     for (let i = 0; i < array.length; i++) {
@@ -34,4 +34,3 @@ const esperado = [9, 25, 49, 9, 64, 81, 1];
 quadradoForEach(esperado);
 quadradoInteracao(esperado);
 
-export default {quadradoForEach, quadradoInteracao};
