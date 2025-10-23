@@ -4,10 +4,7 @@ export interface ClienteSolar {
   email: string;
   telefone: string;
   endereco: string;
-  tamanhoSistema: number; // kW
-  dataInstalacao: Date;
+  tamanhoSistema: number;
   custoTotal: number;
-  economiaMensal: number;
   ativo: boolean;
-  tipoSistema: string;
 }
