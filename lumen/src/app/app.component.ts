@@ -1,14 +1,19 @@
 import { Component } from '@angular/core';
-import { ListaClientesComponent } from './components/lista-clientes/lista-clientes.component';
-
+import { CommonModule } from '@angular/common';
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { ListaClientesPage } from './cliente-page/cliente-page.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ListaClientesComponent],
-  template: `
-    <app-lista-clientes></app-lista-clientes>
-  `
+  imports: [
+    CommonModule, 
+    RouterOutlet,
+    RouterModule,
+    ListaClientesPage
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'solar-crm';
+  title = 'Sistema de Gestão de Energia Solar';
 }

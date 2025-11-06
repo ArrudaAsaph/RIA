@@ -1,0 +1,36 @@
+<div class="p-4 bg-gray-50 min-h-screen">
+  <!-- Cabeçalho -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Clientes de Energia Solar</h1>
+        <p class="text-gray-600">Gerencie seus clientes</p>
+      </div>
+      <button 
+        (click)="novoCliente()"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+        <span>+</span>
+        Novo Cliente
+      </button>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <app-estatisticas-clientes [clientes]="clientes"></app-estatisticas-clientes>
+
+  <!-- Lista -->
+  <app-lista-clientes 
+    [clientes]="clientes"
+    (editar)="editarCliente($event)"
+    (excluir)="excluirCliente($event)">
+  </app-lista-clientes>
+
+  <!-- Modal Form -->
+  <app-cliente-form
+    [cliente]="clienteSelecionado"
+    [editando]="editando"
+    [mostrarDialog]="mostrarDialog"
+    (salvar)="salvarCliente($event)"
+    (cancelar)="fecharDialog()">
+  </app-cliente-form>
+</div>
