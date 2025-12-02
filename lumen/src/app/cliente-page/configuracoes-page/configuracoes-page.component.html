@@ -1,0 +1,296 @@
+<div class="space-y-6">
+  <!-- Cabeçalho -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800">Configurações do Sistema</h2>
+      <p class="text-gray-600">Configure as preferências do sistema de gestão</p>
+    </div>
+    <div class="flex gap-3">
+      <button 
+        (click)="restaurarPadrao()"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+        Restaurar Padrão
+      </button>
+      <button 
+        (click)="salvarConfiguracoes()"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        Salvar Configurações
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Coluna 1: Informações da Empresa -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Informações da Empresa -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+          <h3 class="text-lg font-semibold">Informações da Empresa</h3>
+          <p class="text-gray-600 text-sm">Dados da sua empresa de energia solar</p>
+        </div>
+        <div class="p-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Empresa</label>
+              <input 
+                type="text"
+                [(ngModel)]="configuracao.nomeEmpresa"
+                class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+              <input 
+                type="text"
+                [(ngModel)]="configuracao.cnpj"
+                class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email de Contato</label>
+            <input 
+              type="email"
+              [(ngModel)]="configuracao.emailContato"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Telefone de Contato</label>
+            <input 
+              type="text"
+              [(ngModel)]="configuracao.telefoneContato"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Endereço da Empresa</label>
+            <textarea 
+              [(ngModel)]="configuracao.enderecoEmpresa"
+              rows="2"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parâmetros Financeiros -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+          <h3 class="text-lg font-semibold">Parâmetros Financeiros</h3>
+          <p class="text-gray-600 text-sm">Configurações de financiamento e pagamento</p>
+        </div>
+        <div class="p-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Taxa de Juros Mensal (%)</label>
+              <div class="relative">
+                <input 
+                  type="number"
+                  [(ngModel)]="configuracao.taxaJuros"
+                  min="0"
+                  max="20"
+                  step="0.1"
+                  class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="absolute right-3 top-2 text-gray-400">%</div>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Taxa aplicada em financiamentos</p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Prazo Máximo (meses)</label>
+              <div class="relative">
+                <input 
+                  type="number"
+                  [(ngModel)]="configuracao.prazoMaximo"
+                  min="1"
+                  max="120"
+                  class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="absolute right-3 top-2 text-gray-400">meses</div>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Prazo máximo para pagamento</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configurações de Notificação -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+          <h3 class="text-lg font-semibold">Configurações de Notificação</h3>
+          <p class="text-gray-600 text-sm">Configure como receber alertas e notificações</p>
+        </div>
+        <div class="p-4 space-y-4">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="font-medium">Notificações por Email</div>
+              <div class="text-sm text-gray-500">Receba alertas e relatórios por email</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [(ngModel)]="configuracao.notificacoesEmail" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="font-medium">Notificações por SMS</div>
+              <div class="text-sm text-gray-500">Receba alertas importantes por SMS</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [(ngModel)]="configuracao.notificacoesSMS" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="font-medium">Relatório Automático</div>
+              <div class="text-sm text-gray-500">Gera relatório mensal automaticamente</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [(ngModel)]="configuracao.relatorioAutomatico" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="font-medium">Tema Escuro</div>
+              <div class="text-sm text-gray-500">Alternar entre tema claro e escuro</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [(ngModel)]="configuracao.temaEscuro" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna 2: Ações do Sistema -->
+    <div class="space-y-6">
+      <!-- Alteração de Senha -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+          <h3 class="text-lg font-semibold">Alterar Senha</h3>
+          <p class="text-gray-600 text-sm">Atualize sua senha de acesso</p>
+        </div>
+        <div class="p-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Senha Atual</label>
+            <input 
+              type="password"
+              [(ngModel)]="senhaAtual"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nova Senha</label>
+            <input 
+              type="password"
+              [(ngModel)]="novaSenha"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Nova Senha</label>
+            <input 
+              type="password"
+              [(ngModel)]="confirmarSenha"
+              class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          
+          <button 
+            (click)="alterarSenha()"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition-colors">
+            Alterar Senha
+          </button>
+        </div>
+      </div>
+
+      <!-- Gerenciamento de Usuários -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-lg font-semibold">Usuários do Sistema</h3>
+              <p class="text-gray-600 text-sm">Gerencie acesso ao sistema</p>
+            </div>
+            <button 
+              (click)="adicionarUsuario()"
+              class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+              + Novo
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="space-y-3">
+            <div *ngFor="let usuario of usuarios" class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+              <div>
+                <div class="font-medium">{{ usuario.nome }}</div>
+                <div class="text-sm text-gray-500">{{ usuario.email }}</div>
+                <div class="text-xs" [class]="usuario.ativo ? 'text-green-600' : 'text-red-600'">
+                  {{ usuario.perfil }} • {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
+                </div>
+              </div>
+              <button class="text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup e Exportação -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+          <h3 class="text-lg font-semibold">Backup e Dados</h3>
+          <p class="text-gray-600 text-sm">Gerencie backups e exportações</p>
+        </div>
+        <div class="p-4 space-y-3">
+          <button 
+            (click)="backupSistema()"
+            class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded flex items-center justify-center gap-2 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+            </svg>
+            Fazer Backup do Sistema
+          </button>
+          
+          <button 
+            (click)="exportarDados()"
+            class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded flex items-center justify-center gap-2 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Exportar Dados
+          </button>
+          
+          <div class="pt-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Importar Dados</label>
+            <div class="flex items-center justify-center w-full">
+              <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500">Clique para importar</p>
+                  <p class="text-xs text-gray-500">Arquivos CSV, Excel, JSON</p>
+                </div>
+                <input 
+                  type="file" 
+                  class="hidden" 
+                  (change)="importarDados($event)"
+                  accept=".csv,.xlsx,.xls,.json">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
