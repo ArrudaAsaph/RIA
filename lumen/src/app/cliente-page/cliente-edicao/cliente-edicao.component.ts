@@ -14,6 +14,27 @@ import { ClienteSolar } from '../../models/clientes/clientes.component';
 export class ClienteEdicaoComponent implements OnInit {
   cliente: ClienteSolar = this.clienteVazio();
   clienteId: string = '';
+  estadosBrasil = [
+    { sigla: 'AC', nome: 'Acre' }, { sigla: 'AL', nome: 'Alagoas' }, { sigla: 'AP', nome: 'Amapá' },
+    { sigla: 'AM', nome: 'Amazonas' }, { sigla: 'BA', nome: 'Bahia' }, { sigla: 'CE', nome: 'Ceará' },
+    { sigla: 'DF', nome: 'Distrito Federal' }, { sigla: 'ES', nome: 'Espírito Santo' },
+    { sigla: 'GO', nome: 'Goiás' }, { sigla: 'MA', nome: 'Maranhão' }, { sigla: 'MT', nome: 'Mato Grosso' },
+    { sigla: 'MS', nome: 'Mato Grosso do Sul' }, { sigla: 'MG', nome: 'Minas Gerais' }, { sigla: 'PA', nome: 'Pará' },
+    { sigla: 'PB', nome: 'Paraíba' }, { sigla: 'PR', nome: 'Paraná' }, { sigla: 'PE', nome: 'Pernambuco' },
+    { sigla: 'PI', nome: 'Piauí' }, { sigla: 'RJ', nome: 'Rio de Janeiro' }, { sigla: 'RN', nome: 'Rio Grande do Norte' },
+    { sigla: 'RS', nome: 'Rio Grande do Sul' }, { sigla: 'RO', nome: 'Rondônia' }, { sigla: 'RR', nome: 'Roraima' },
+    { sigla: 'SC', nome: 'Santa Catarina' }, { sigla: 'SP', nome: 'São Paulo' }, { sigla: 'SE', nome: 'Sergipe' },
+    { sigla: 'TO', nome: 'Tocantins' }
+  ];
+  tiposSistema = [
+    { valor: 'RESIDENCIAL', label: 'Residencial' },
+    { valor: 'COMERCIAL', label: 'Comercial' },
+    { valor: 'INDUSTRIAL', label: 'Industrial' },
+    { valor: 'RURAL', label: 'Rural' }
+  ];
+  carregando: boolean = true;
+  enviando: boolean = false;
+  erro: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -29,32 +50,61 @@ export class ClienteEdicaoComponent implements OnInit {
   }
 
   carregarCliente(): void {
-    const clienteExistente = this.clienteService.obterClientePorId(this.clienteId);
-    if (clienteExistente) {
-      this.cliente = { ...clienteExistente };
-    } else {
-      this.router.navigate(['/clientes']);
-    }
+    this.carregando = true;
+    this.erro = '';
+    
+    this.clienteService.obterClientePorId(this.clienteId).subscribe({
+      next: (cliente) => {
+        this.cliente = cliente;
+        this.carregando = false;
+      },
+      error: (error) => {
+        this.erro = 'Erro ao carregar cliente: ' + error.message;
+        this.carregando = false;
+        this.router.navigate(['/clientes']);
+      }
+    });
   }
 
   clienteVazio(): ClienteSolar {
+    const hoje = new Date().toISOString().split('T')[0];
+    
     return {
       id: '',
       nome: '',
       email: '',
       telefone: '',
       endereco: '',
+      cidade: '',
+      estado: 'SP',
+      cep: '',
       tamanhoSistema: 0,
       custoTotal: 0,
-      ativo: true
+      dataInstalacao: hoje,
+      ativo: true,
+      tipoSistema: 'RESIDENCIAL'
     };
   }
 
   salvar(): void {
-    if (this.validarFormulario()) {
-      this.clienteService.atualizarCliente(this.cliente);
-      this.router.navigate(['/clientes']);
+    if (!this.validarFormulario()) {
+      return;
     }
+
+    this.enviando = true;
+    this.erro = '';
+
+    this.clienteService.atualizarCliente(this.cliente).subscribe({
+      next: (clienteAtualizado) => {
+        this.enviando = false;
+        this.router.navigate(['/clientes']);
+      },
+      error: (error) => {
+        this.enviando = false;
+        this.erro = 'Erro ao atualizar cliente: ' + error.message;
+        console.error('Erro:', error);
+      }
+    });
   }
 
   cancelar(): void {
@@ -62,23 +112,50 @@ export class ClienteEdicaoComponent implements OnInit {
   }
 
   private validarFormulario(): boolean {
-    if (!this.cliente.nome.trim()) {
-      alert('Por favor, informe o nome do cliente.');
+    this.erro = '';
+
+    if (!this.cliente.nome?.trim()) {
+      this.erro = 'Por favor, informe o nome do cliente.';
       return false;
     }
     
-    if (!this.cliente.email.trim()) {
-      alert('Por favor, informe o email do cliente.');
+    if (!this.cliente.email?.trim()) {
+      this.erro = 'Por favor, informe o email do cliente.';
+      return false;
+    }
+    
+    if (!this.cliente.telefone?.trim()) {
+      this.erro = 'Por favor, informe o telefone do cliente.';
+      return false;
+    }
+    
+    if (!this.cliente.endereco?.trim()) {
+      this.erro = 'Por favor, informe o endereço do cliente.';
+      return false;
+    }
+    
+    if (!this.cliente.cidade?.trim()) {
+      this.erro = 'Por favor, informe a cidade do cliente.';
+      return false;
+    }
+    
+    if (!this.cliente.estado) {
+      this.erro = 'Por favor, selecione o estado do cliente.';
       return false;
     }
     
     if (this.cliente.tamanhoSistema <= 0) {
-      alert('O tamanho do sistema deve ser maior que zero.');
+      this.erro = 'O tamanho do sistema deve ser maior que zero.';
       return false;
     }
     
     if (this.cliente.custoTotal < 0) {
-      alert('O custo total não pode ser negativo.');
+      this.erro = 'O custo total não pode ser negativo.';
+      return false;
+    }
+    
+    if (!this.cliente.dataInstalacao) {
+      this.erro = 'Por favor, informe a data de instalação.';
       return false;
     }
     

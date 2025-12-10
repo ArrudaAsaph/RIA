@@ -11,6 +11,16 @@
     </a>
   </div>
 
+  <!-- Mensagem de erro -->
+  <div *ngIf="erro" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+    {{ erro }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="enviando" class="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded">
+    Salvando cliente...
+  </div>
+
   <form (ngSubmit)="salvar()" class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Coluna 1: Informações Pessoais -->
@@ -38,23 +48,60 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Telefone *</label>
           <input 
             type="text"
             [(ngModel)]="cliente.telefone"
             name="telefone"
+            required
             class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="(11) 99999-9999">
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Endereço *</label>
           <input 
             type="text"
             [(ngModel)]="cliente.endereco"
             name="endereco"
+            required
             class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Rua, número, bairro, cidade">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Cidade *</label>
+          <input 
+            type="text"
+            [(ngModel)]="cliente.cidade"
+            name="cidade"
+            required
+            class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Digite a cidade">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+          <select 
+            [(ngModel)]="cliente.estado"
+            name="estado"
+            required
+            class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Selecione o estado</option>
+            <option *ngFor="let estado of estadosBrasil" [value]="estado.sigla">
+              {{ estado.sigla }} - {{ estado.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
+          <input 
+            type="text"
+            [(ngModel)]="cliente.cep"
+            name="cep"
+            class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="00000-000">
         </div>
       </div>
 
@@ -86,6 +133,30 @@
             placeholder="0,00">
         </div>
 
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Data de Instalação *</label>
+          <input 
+            type="date"
+            [(ngModel)]="cliente.dataInstalacao"
+            name="dataInstalacao"
+            required
+            class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Sistema *</label>
+          <select 
+            [(ngModel)]="cliente.tipoSistema"
+            name="tipoSistema"
+            required
+            class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Selecione o tipo</option>
+            <option *ngFor="let tipo of tiposSistema" [value]="tipo.valor">
+              {{ tipo.label }}
+            </option>
+          </select>
+        </div>
+
         <div class="pt-4">
           <div class="flex items-center p-3 bg-gray-50 rounded-lg">
             <input 
@@ -114,17 +185,20 @@
           <button 
             type="button"
             (click)="cancelar()"
-            class="px-6 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors">
+            [disabled]="enviando"
+            class="px-6 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             Cancelar
           </button>
           
           <button 
             type="submit"
-            class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-2">
+            [disabled]="enviando"
+            class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            Cadastrar Cliente
+            <span *ngIf="!enviando">Cadastrar Cliente</span>
+            <span *ngIf="enviando">Salvando...</span>
           </button>
         </div>
       </div>

@@ -13,6 +13,8 @@ import { ClienteSolar } from '../../models/clientes/clientes.component';
 export class ClienteDetalheComponent implements OnInit {
   cliente: ClienteSolar | null = null;
   clienteId: string = '';
+  carregando: boolean = true;
+  erro: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -27,11 +29,27 @@ export class ClienteDetalheComponent implements OnInit {
   }
 
   carregarCliente(): void {
-    const cliente = this.clienteService.obterClientePorId(this.clienteId);
-    this.cliente = cliente || null;
+    this.carregando = true;
+    this.erro = '';
+    
+    this.clienteService.obterClientePorId(this.clienteId).subscribe({
+      next: (cliente) => {
+        this.cliente = cliente;
+        this.carregando = false;
+      },
+      error: (error) => {
+        this.erro = 'Erro ao carregar cliente: ' + error.message;
+        this.carregando = false;
+        console.error('Erro:', error);
+      }
+    });
   }
 
   formatarMoeda(valor: number): string {
     return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  formatarData(data: string): string {
+    return new Date(data).toLocaleDateString('pt-BR');
   }
 }

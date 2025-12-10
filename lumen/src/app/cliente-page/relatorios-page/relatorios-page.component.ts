@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ClienteService } from '../../service/cliente.service'; // Corrigido: services (plural)
+import { ClienteService } from '../../service/cliente.service';
 import { ClienteSolar } from '../../models/clientes/clientes.component';
 
 interface RelatorioMensal {
@@ -27,6 +27,8 @@ interface RelatorioCidade {
 })
 export class RelatoriosPage implements OnInit {
   clientes: ClienteSolar[] = [];
+  carregando: boolean = true;
+  erro: string = '';
   
   relatorioMensal: RelatorioMensal[] = [
     { mes: 'Janeiro', novosClientes: 5, clientesAtivos: 45, capacidadeAdicionada: 25.5, receita: 125000 },
@@ -52,7 +54,20 @@ export class RelatoriosPage implements OnInit {
   }
 
   carregarDados(): void {
-    this.clientes = this.clienteService.listarClientes();
+    this.carregando = true;
+    this.erro = '';
+    
+    this.clienteService.listarClientes().subscribe({
+      next: (clientes) => {
+        this.clientes = clientes;
+        this.carregando = false;
+      },
+      error: (error) => {
+        this.erro = 'Erro ao carregar dados: ' + error.message;
+        this.carregando = false;
+        console.error('Erro:', error);
+      }
+    });
   }
 
   getEstatisticas() {

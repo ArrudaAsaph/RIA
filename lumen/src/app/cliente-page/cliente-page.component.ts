@@ -19,6 +19,8 @@ import { ListaClientesComponent } from '../components/lista-clientes/lista-clien
 })
 export class ListaClientesPage implements OnInit {
   clientes: ClienteSolar[] = [];
+  carregando: boolean = true;
+  erro: string = '';
 
   constructor(private clienteService: ClienteService) {}
 
@@ -27,13 +29,33 @@ export class ListaClientesPage implements OnInit {
   }
 
   carregarClientes(): void {
-    this.clientes = this.clienteService.listarClientes();
+    this.carregando = true;
+    this.erro = '';
+    
+    this.clienteService.listarClientes().subscribe({
+      next: (clientes) => {
+        console.log('Clientes carregados:', clientes);
+        this.clientes = clientes;
+        this.carregando = false;
+      },
+      error: (error) => {
+        this.erro = 'Erro ao carregar clientes: ' + error.message;
+        this.carregando = false;
+        console.error('Erro completo:', error);
+      }
+    });
   }
 
   excluirCliente(cliente: ClienteSolar): void {
     if (confirm(`Deseja realmente excluir o cliente ${cliente.nome}?`)) {
-      this.clienteService.removerCliente(cliente.id);
-      this.carregarClientes();
+      this.clienteService.removerCliente(cliente.id).subscribe({
+        next: () => {
+          this.carregarClientes();
+        },
+        error: (error) => {
+          alert('Erro ao excluir cliente: ' + error.message);
+        }
+      });
     }
   }
 }
