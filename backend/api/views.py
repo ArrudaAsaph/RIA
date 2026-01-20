@@ -440,3 +440,115 @@ class EstatisticasView(APIView):
         }
         
         return Response(estatisticas)
+
+
+# Adicionar no topo do arquivo
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+
+# Adicionar estas views
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    """
+    Autenticação JWT personalizada.
+    """
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    user = authenticate(username=username, password=password)
+    
+    if user is not None:
+        if user.is_active:
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                }
+            })
+        else:
+            return Response(
+                {'detail': 'Conta desativada'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    else:
+        return Response(
+            {'detail': 'Credenciais inválidas'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+    """
+    Registro de novo usuário.
+    """
+    from django.contrib.auth.models import User
+    
+    username = request.data.get('username')
+    password = request.data.get('password')
+    email = request.data.get('email')
+    first_name = request.data.get('first_name', '')
+    last_name = request.data.get('last_name', '')
+    
+    if not username or not password:
+        return Response(
+            {'detail': 'Username e password são obrigatórios'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {'detail': 'Username já existe'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        email=email,
+        first_name=first_name,
+        last_name=last_name
+    )
+    
+    refresh = RefreshToken.for_user(user)
+    
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+        }
+    }, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def logout(request):
+    """
+    Logout - adicionar token à blacklist.
+    """
+    try:
+        refresh_token = request.data.get('refresh')
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response({'detail': 'Logout realizado com sucesso'})
+    except Exception as e:
+        return Response(
+            {'detail': 'Erro ao realizar logout'},
+            status=status.HTTP_400_BAD_REQUEST
+        )

@@ -5,14 +5,45 @@ import { ClienteEdicaoComponent } from './cliente-page/cliente-edicao/cliente-ed
 import { ClienteInclusaoComponent } from './cliente-page/cliente-inclusao/cliente-inclusao.component';
 import { RelatoriosPage } from './cliente-page/relatorios-page/relatorios-page.component';
 import { ConfiguracoesPage } from './cliente-page/configuracoes-page/configuracoes-page.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { AuthGuard } from './service/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/clientes', pathMatch: 'full' },
-  { path: 'clientes', component: ListaClientesPage },
-  { path: 'clientes/novo', component: ClienteInclusaoComponent },
-  { path: 'clientes/detalhe/:id', component: ClienteDetalheComponent },
-  { path: 'clientes/editar/:id', component: ClienteEdicaoComponent },
-  { path: 'relatorios', component: RelatoriosPage },
-  { path: 'configuracoes', component: ConfiguracoesPage },
-  { path: '**', redirectTo: '/clientes' }
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  
+  // Rotas protegidas
+  { 
+    path: 'clientes', 
+    component: ListaClientesPage,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'clientes/novo', 
+    component: ClienteInclusaoComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'clientes/detalhe/:id', 
+    component: ClienteDetalheComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'clientes/editar/:id', 
+    component: ClienteEdicaoComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'relatorios', 
+    component: RelatoriosPage,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'configuracoes', 
+    component: ConfiguracoesPage,
+    canActivate: [AuthGuard]
+  },
+  { path: '**', redirectTo: '/login' }
 ];

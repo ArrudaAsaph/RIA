@@ -1,0 +1,9 @@
+Django==4.2.0
+djangorestframework==3.14.0
+django-cors-headers==4.1.0
+python-decouple==3.8
+psycopg2-binary==2.9.6
+django-filter==23.2
+drf-yasg==1.21.5
+django-extensions==3.2.3
+djangorestframework-simplejwt==5.3.1

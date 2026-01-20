@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ClienteService } from '../../service/cliente.service';
@@ -10,43 +10,48 @@ import { ClienteSolar } from '../../models/clientes/clientes.component';
   imports: [CommonModule, RouterModule],
   templateUrl: './cliente-detalhe.component.html'
 })
-export class ClienteDetalheComponent implements OnInit {
-  cliente: ClienteSolar | null = null;
-  clienteId: string = '';
-  carregando: boolean = true;
-  erro: string = '';
+export class ClienteDetalheComponent {
 
-  constructor(
-    private route: ActivatedRoute,
-    private clienteService: ClienteService
-  ) {}
+  private route = inject(ActivatedRoute);
+  private clienteService = inject(ClienteService);
 
-  ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.clienteId = params['id'];
-      this.carregarCliente();
-    });
+  cliente = signal<ClienteSolar | null>(null);
+  carregando = signal(true);
+  erro = signal('');
+
+  constructor() {
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id) {
+      this.carregarCliente(id);
+    } else {
+      this.erro.set('ID do cliente não informado.');
+      this.carregando.set(false);
+    }
   }
 
-  carregarCliente(): void {
-    this.carregando = true;
-    this.erro = '';
-    
-    this.clienteService.obterClientePorId(this.clienteId).subscribe({
-      next: (cliente) => {
-        this.cliente = cliente;
-        this.carregando = false;
+  private carregarCliente(id: string): void {
+    this.carregando.set(true);
+    this.erro.set('');
+
+    this.clienteService.obterClientePorId(id).subscribe({
+      next: cliente => {
+        this.cliente.set(cliente);
+        this.carregando.set(false);
       },
-      error: (error) => {
-        this.erro = 'Erro ao carregar cliente: ' + error.message;
-        this.carregando = false;
-        console.error('Erro:', error);
+      error: err => {
+        this.erro.set('Erro ao carregar cliente.');
+        this.carregando.set(false);
+        console.error(err);
       }
     });
   }
 
   formatarMoeda(valor: number): string {
-    return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return 'R$ ' + valor.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
 
   formatarData(data: string): string {

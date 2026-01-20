@@ -1,84 +1,87 @@
-<div *ngIf="mostrarDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-    <!-- Header -->
-    <div class="p-4 border-b">
-      <h2 class="text-xl font-semibold">{{ editando ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
+<div *ngIf="mostrarDialog" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+  <div class="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+
+    <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <h2 class="text-xl font-semibold text-white">
+        {{ editando ? 'Editar Cliente' : 'Novo Cliente' }}
+      </h2>
     </div>
 
-    <!-- Form -->
-    <div class="p-4 space-y-4">
+    <div class="p-6 space-y-4 bg-white">
       <div>
-        <label class="block text-sm font-medium mb-1">Nome *</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Nome *</label>
         <input 
           type="text"
           [(ngModel)]="cliente.nome"
-          class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Email *</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Email *</label>
         <input 
           type="email"
           [(ngModel)]="cliente.email"
-          class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Telefone</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
         <input 
           type="text"
           [(ngModel)]="cliente.telefone"
-          class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Endereço</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Endereço</label>
         <input 
           type="text"
           [(ngModel)]="cliente.endereco"
-          class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Tamanho do Sistema (kW)</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Tamanho do Sistema (kW)</label>
         <input 
           type="number"
           [(ngModel)]="cliente.tamanhoSistema"
           min="1"
-          class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Custo Total (R$)</label>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Custo Total (R$)</label>
         <input 
           type="number"
           [(ngModel)]="cliente.custoTotal"
           min="0"
-          class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50">
       </div>
 
-      <div class="flex items-center">
+      <div class="flex items-center gap-2 pt-2">
         <input 
           type="checkbox"
           [(ngModel)]="cliente.ativo"
           id="ativo"
-          class="mr-2">
-        <label for="ativo" class="text-sm font-medium">Cliente Ativo</label>
+          class="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500">
+        <label for="ativo" class="text-sm font-medium text-slate-700">
+          Cliente Ativo
+        </label>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="p-4 border-t flex justify-end gap-2">
+    <div class="px-6 py-4 bg-slate-100 border-t flex justify-end gap-3">
       <button 
         (click)="onCancelar()"
-        class="px-4 py-2 text-gray-600 hover:text-gray-800">
+        class="px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition">
         Cancelar
       </button>
       <button 
         (click)="onSalvar()"
-        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+        class="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium shadow">
         {{ editando ? 'Atualizar' : 'Salvar' }}
       </button>
     </div>
+
   </div>
 </div>
