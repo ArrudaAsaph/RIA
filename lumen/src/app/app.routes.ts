@@ -1,18 +1,18 @@
 import { Routes } from '@angular/router';
 import { ListaClientesPage } from './cliente-page/cliente-page.component';
 import { ClienteDetalheComponent } from './cliente-page/cliente-detalhe/cliente-detalhe.component';
-import { ClienteEdicaoComponent } from './cliente-page/cliente-edicao/cliente-edicao.component';
-import { ClienteInclusaoComponent } from './cliente-page/cliente-inclusao/cliente-inclusao.component';
+import { ClienteEdicao } from './cliente-page/cliente-edicao/cliente-edicao.component';
+import { ClienteInclusao } from './cliente-page/cliente-inclusao/cliente-inclusao.component';
 import { RelatoriosPage } from './cliente-page/relatorios-page/relatorios-page.component';
 import { ConfiguracoesPage } from './cliente-page/configuracoes-page/configuracoes-page.component';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
+import { Login } from './components/login/login.component';
+import { Register } from './components/register/register.component';
 import { AuthGuard } from './service/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login', component: Login },
+  { path: 'register', component: Register },
   
   // Rotas protegidas
   { 
@@ -22,7 +22,7 @@ export const routes: Routes = [
   },
   { 
     path: 'clientes/novo', 
-    component: ClienteInclusaoComponent,
+    component: ClienteInclusao,
     canActivate: [AuthGuard]
   },
   { 
@@ -32,7 +32,7 @@ export const routes: Routes = [
   },
   { 
     path: 'clientes/editar/:id', 
-    component: ClienteEdicaoComponent,
+    component: ClienteEdicao,
     canActivate: [AuthGuard]
   },
   { 

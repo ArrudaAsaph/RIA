@@ -16,9 +16,7 @@
             "outputPath": "dist/lumen",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": [],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -74,7 +72,6 @@
           "builder": "@angular/build:karma",
           "options": {
             "polyfills": [
-              "zone.js",
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
@@ -118,5 +115,8 @@
     "@schematics/angular:resolver": {
       "typeSeparator": "."
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

@@ -1,19 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ClienteService } from '../../service/cliente.service';
-import { ClienteSolar } from '../../models/clientes/clientes.component';
 
 @Component({
   selector: 'app-cliente-edicao',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './cliente-edicao.component.html'
 })
-export class ClienteEdicaoComponent implements OnInit {
-  cliente: ClienteSolar = this.clienteVazio();
-  clienteId: string = '';
+export class ClienteEdicao {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly clienteService = inject(ClienteService);
+  private readonly formBuilder = inject(FormBuilder);
+
+  carregando = signal(true);
+  enviando = signal(false);
+  erro = signal('');
+  clienteId = signal('');
+
+  form = this.formBuilder.group({
+    id: [''],
+    nome: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
+    telefone: ['', [Validators.required, Validators.minLength(10)]],
+    endereco: ['', [Validators.required, Validators.minLength(5)]],
+    cidade: ['', [Validators.required]],
+    estado: ['SP', [Validators.required]],
+    cep: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+    tamanhoSistema: [0, [Validators.required, Validators.min(0.1)]],
+    custoTotal: [0, [Validators.required, Validators.min(0)]],
+    dataInstalacao: ['', [Validators.required]],
+    tipoSistema: ['RESIDENCIAL', [Validators.required]],
+    ativo: [true]
+  });
+
   estadosBrasil = [
     { sigla: 'AC', nome: 'Acre' }, { sigla: 'AL', nome: 'Alagoas' }, { sigla: 'AP', nome: 'Amapá' },
     { sigla: 'AM', nome: 'Amazonas' }, { sigla: 'BA', nome: 'Bahia' }, { sigla: 'CE', nome: 'Ceará' },
@@ -26,82 +49,64 @@ export class ClienteEdicaoComponent implements OnInit {
     { sigla: 'SC', nome: 'Santa Catarina' }, { sigla: 'SP', nome: 'São Paulo' }, { sigla: 'SE', nome: 'Sergipe' },
     { sigla: 'TO', nome: 'Tocantins' }
   ];
+
   tiposSistema = [
     { valor: 'RESIDENCIAL', label: 'Residencial' },
     { valor: 'COMERCIAL', label: 'Comercial' },
     { valor: 'INDUSTRIAL', label: 'Industrial' },
     { valor: 'RURAL', label: 'Rural' }
   ];
-  carregando: boolean = true;
-  enviando: boolean = false;
-  erro: string = '';
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private clienteService: ClienteService
-  ) {}
-
-  ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.clienteId = params['id'];
-      this.carregarCliente();
+  constructor() {
+    // Effect para capturar o ID da rota e carregar o cliente
+    effect(() => {
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.clienteId.set(id);
+        this.carregarCliente(id);
+      }
     });
   }
 
-  carregarCliente(): void {
-    this.carregando = true;
-    this.erro = '';
-    
-    this.clienteService.obterClientePorId(this.clienteId).subscribe({
+  private carregarCliente(id: string): void {
+    this.carregando.set(true);
+    this.erro.set('');
+
+    this.clienteService.obterClientePorId(id).subscribe({
       next: (cliente) => {
-        this.cliente = cliente;
-        this.carregando = false;
+        this.form.patchValue(cliente);
+        this.carregando.set(false);
       },
       error: (error) => {
-        this.erro = 'Erro ao carregar cliente: ' + error.message;
-        this.carregando = false;
+        this.erro.set('Erro ao carregar cliente: ' + error.message);
+        this.carregando.set(false);
         this.router.navigate(['/clientes']);
       }
     });
   }
 
-  clienteVazio(): ClienteSolar {
-    const hoje = new Date().toISOString().split('T')[0];
-    
-    return {
-      id: '',
-      nome: '',
-      email: '',
-      telefone: '',
-      endereco: '',
-      cidade: '',
-      estado: 'SP',
-      cep: '',
-      tamanhoSistema: 0,
-      custoTotal: 0,
-      dataInstalacao: hoje,
-      ativo: true,
-      tipoSistema: 'RESIDENCIAL'
-    };
-  }
-
   salvar(): void {
-    if (!this.validarFormulario()) {
+    if (this.form.invalid) {
+      this.erro.set('Por favor, preencha todos os campos corretamente.');
       return;
     }
 
-    this.enviando = true;
-    this.erro = '';
+    this.enviando.set(true);
+    this.erro.set('');
 
-    this.clienteService.atualizarCliente(this.cliente).subscribe({
-      next: (clienteAtualizado) => {
-        this.enviando = false;
+    const cliente = this.form.getRawValue() as any;
+    if (!cliente.id) {
+      cliente.id = this.clienteId();
+    }
+
+    this.clienteService.atualizarCliente(cliente).subscribe({
+      next: () => {
+        this.enviando.set(false);
         this.router.navigate(['/clientes']);
       },
       error: (error) => {
-        this.enviando = false;
-        this.erro = 'Erro ao atualizar cliente: ' + error.message;
+        this.enviando.set(false);
+        this.erro.set('Erro ao atualizar cliente: ' + error.message);
         console.error('Erro:', error);
       }
     });
@@ -109,56 +114,5 @@ export class ClienteEdicaoComponent implements OnInit {
 
   cancelar(): void {
     this.router.navigate(['/clientes']);
-  }
-
-  private validarFormulario(): boolean {
-    this.erro = '';
-
-    if (!this.cliente.nome?.trim()) {
-      this.erro = 'Por favor, informe o nome do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.email?.trim()) {
-      this.erro = 'Por favor, informe o email do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.telefone?.trim()) {
-      this.erro = 'Por favor, informe o telefone do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.endereco?.trim()) {
-      this.erro = 'Por favor, informe o endereço do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.cidade?.trim()) {
-      this.erro = 'Por favor, informe a cidade do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.estado) {
-      this.erro = 'Por favor, selecione o estado do cliente.';
-      return false;
-    }
-    
-    if (this.cliente.tamanhoSistema <= 0) {
-      this.erro = 'O tamanho do sistema deve ser maior que zero.';
-      return false;
-    }
-    
-    if (this.cliente.custoTotal < 0) {
-      this.erro = 'O custo total não pode ser negativo.';
-      return false;
-    }
-    
-    if (!this.cliente.dataInstalacao) {
-      this.erro = 'Por favor, informe a data de instalação.';
-      return false;
-    }
-    
-    return true;
   }
 }

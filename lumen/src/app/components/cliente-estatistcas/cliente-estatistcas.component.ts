@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClienteSolar } from '../../models/clientes/clientes.component';
 
@@ -8,19 +8,19 @@ import { ClienteSolar } from '../../models/clientes/clientes.component';
   imports: [CommonModule],
   templateUrl: './cliente-estatistcas.component.html'
 })
-export class EstatisticasClientesComponent {
-  @Input() clientes: ClienteSolar[] = [];
+export class Estatisticas {
+  clientes = input<ClienteSolar[]>([]);
 
   getClientesAtivos(): number {
-    return this.clientes.filter(cliente => cliente.ativo).length;
+    return this.clientes().filter(cliente => cliente.ativo).length;
   }
 
   getCapacidadeTotal(): number {
-    return this.clientes.reduce((total, cliente) => total + cliente.tamanhoSistema, 0);
+    return this.clientes().reduce((total, cliente) => total + cliente.tamanhoSistema, 0);
   }
 
   getInvestimentoTotal(): number {
-    return this.clientes.reduce((total, cliente) => total + cliente.custoTotal, 0);
+    return this.clientes().reduce((total, cliente) => total + cliente.custoTotal, 0);
   }
 
   formatarMoeda(valor: number): string {

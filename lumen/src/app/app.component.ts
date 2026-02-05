@@ -1,29 +1,29 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from './service/auth.service';  // Note o "services" (plural)
+import { AuthService } from './service/auth.service';
 import { User } from './models/auth';
 
 @Component({
   selector: 'app-root',
-  standalone: true,  // Marque como standalone
-  imports: [CommonModule, RouterModule],  // Importe os módulos necessários
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class App {
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
   currentUser: User | null = null;
   userMenuOpen = false;
   mobileMenuOpen = false;
 
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
-    this.authService.currentUser.subscribe((user: User | null) => {
-      this.currentUser = user;
+  constructor() {
+    effect(() => {
+      this.authService.currentUser.subscribe((user: User | null) => {
+        this.currentUser = user;
+      });
     });
   }
 

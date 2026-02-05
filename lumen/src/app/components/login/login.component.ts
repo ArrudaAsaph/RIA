@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -13,31 +13,31 @@ import { LoginRequest } from '../../models/auth';
   templateUrl: './login.component.html'
 })
 
-export class LoginComponent implements OnInit {
+export class Login {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
+
   loginForm: FormGroup;
   loading = false;
   submitted = false;
   error = '';
-  returnUrl: string = '';
+  returnUrl: string = '/clientes';
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
-  ) {
+  constructor() {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
-  }
 
-  ngOnInit(): void {
-    if (this.authService.currentUserValue) {
-      this.router.navigate(['/clientes']);
-    }
-
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/clientes';
+    // Effect para verificar se está autenticado ao carregar
+    effect(() => {
+      if (this.authService.currentUserValue) {
+        this.router.navigate(['/clientes']);
+      }
+      this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/clientes';
+    });
   }
 
   get f() { return this.loginForm.controls; }

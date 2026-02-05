@@ -1,18 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ClienteService } from '../../service/cliente.service';
-import { ClienteSolar } from '../../models/clientes/clientes.component';
 
 @Component({
   selector: 'app-cliente-inclusao',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './cliente-inclusao.component.html'
 })
-export class ClienteInclusaoComponent {
-  cliente: ClienteSolar = this.clienteVazio();
+export class ClienteInclusao {
+  private readonly router = inject(Router);
+  private readonly clienteService = inject(ClienteService);
+  private readonly formBuilder = inject(FormBuilder);
+
+  enviando = signal(false);
+  erro = signal('');
+
+  form = this.formBuilder.group({
+    nome: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
+    telefone: ['', [Validators.required, Validators.minLength(10)]],
+    endereco: ['', [Validators.required, Validators.minLength(5)]],
+    cidade: ['', [Validators.required]],
+    estado: ['SP', [Validators.required]],
+    cep: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+    tamanhoSistema: [0, [Validators.required, Validators.min(0.1)]],
+    custoTotal: [0, [Validators.required, Validators.min(0)]],
+    dataInstalacao: [new Date().toISOString().split('T')[0], [Validators.required]],
+    tipoSistema: ['RESIDENCIAL', [Validators.required]],
+    ativo: [true]
+  });
+
   estadosBrasil = [
     { sigla: 'AC', nome: 'Acre' }, { sigla: 'AL', nome: 'Alagoas' }, { sigla: 'AP', nome: 'Amapá' },
     { sigla: 'AM', nome: 'Amazonas' }, { sigla: 'BA', nome: 'Bahia' }, { sigla: 'CE', nome: 'Ceará' },
@@ -25,56 +45,34 @@ export class ClienteInclusaoComponent {
     { sigla: 'SC', nome: 'Santa Catarina' }, { sigla: 'SP', nome: 'São Paulo' }, { sigla: 'SE', nome: 'Sergipe' },
     { sigla: 'TO', nome: 'Tocantins' }
   ];
+
   tiposSistema = [
     { valor: 'RESIDENCIAL', label: 'Residencial' },
     { valor: 'COMERCIAL', label: 'Comercial' },
     { valor: 'INDUSTRIAL', label: 'Industrial' },
     { valor: 'RURAL', label: 'Rural' }
   ];
-  enviando: boolean = false;
-  erro: string = '';
-
-  constructor(
-    private router: Router,
-    private clienteService: ClienteService
-  ) {}
-
-  clienteVazio(): ClienteSolar {
-    const hoje = new Date().toISOString().split('T')[0];
-    
-    return {
-      id: '',
-      nome: '',
-      email: '',
-      telefone: '',
-      endereco: '',
-      cidade: '',
-      estado: 'SP',
-      cep: '',
-      tamanhoSistema: 0,
-      custoTotal: 0,
-      dataInstalacao: hoje,
-      ativo: true,
-      tipoSistema: 'RESIDENCIAL'
-    };
-  }
 
   salvar(): void {
-    if (!this.validarFormulario()) {
+    if (this.form.invalid) {
+      this.erro.set('Por favor, preencha todos os campos corretamente.');
       return;
     }
 
-    this.enviando = true;
-    this.erro = '';
+    this.enviando.set(true);
+    this.erro.set('');
 
-    this.clienteService.adicionarCliente(this.cliente).subscribe({
-      next: (clienteSalvo) => {
-        this.enviando = false;
+    const cliente = this.form.getRawValue() as any;
+    delete cliente.id;
+
+    this.clienteService.adicionarCliente(cliente).subscribe({
+      next: () => {
+        this.enviando.set(false);
         this.router.navigate(['/clientes']);
       },
       error: (error) => {
-        this.enviando = false;
-        this.erro = 'Erro ao salvar cliente: ' + error.message;
+        this.enviando.set(false);
+        this.erro.set('Erro ao salvar cliente: ' + error.message);
         console.error('Erro:', error);
       }
     });
@@ -82,56 +80,5 @@ export class ClienteInclusaoComponent {
 
   cancelar(): void {
     this.router.navigate(['/clientes']);
-  }
-
-  private validarFormulario(): boolean {
-    this.erro = '';
-
-    if (!this.cliente.nome?.trim()) {
-      this.erro = 'Por favor, informe o nome do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.email?.trim()) {
-      this.erro = 'Por favor, informe o email do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.telefone?.trim()) {
-      this.erro = 'Por favor, informe o telefone do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.endereco?.trim()) {
-      this.erro = 'Por favor, informe o endereço do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.cidade?.trim()) {
-      this.erro = 'Por favor, informe a cidade do cliente.';
-      return false;
-    }
-    
-    if (!this.cliente.estado) {
-      this.erro = 'Por favor, selecione o estado do cliente.';
-      return false;
-    }
-    
-    if (this.cliente.tamanhoSistema <= 0) {
-      this.erro = 'O tamanho do sistema deve ser maior que zero.';
-      return false;
-    }
-    
-    if (this.cliente.custoTotal < 0) {
-      this.erro = 'O custo total não pode ser negativo.';
-      return false;
-    }
-    
-    if (!this.cliente.dataInstalacao) {
-      this.erro = 'Por favor, informe a data de instalação.';
-      return false;
-    }
-    
-    return true;
   }
 }

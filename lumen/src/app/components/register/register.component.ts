@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -13,18 +13,18 @@ import {RegisterRequest } from '../../models/auth'
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
 })
-export class RegisterComponent implements OnInit {
+export class Register {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
   registerForm: FormGroup;
   loading = false;
   submitted = false;
   error = '';
   success = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private authService: AuthService
-  ) {
+  constructor() {
     this.registerForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -35,12 +35,13 @@ export class RegisterComponent implements OnInit {
     }, {
       validator: this.passwordMatchValidator
     });
-  }
 
-  ngOnInit(): void {
-    if (this.authService.currentUserValue) {
-      this.router.navigate(['/clientes']);
-    }
+    // Effect para verificar se está autenticado
+    effect(() => {
+      if (this.authService.currentUserValue) {
+        this.router.navigate(['/clientes']);
+      }
+    });
   }
 
   passwordMatchValidator(form: FormGroup) {

@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ClienteSolar } from '../models/clientes/clientes.component';
 import { ClienteService } from '../service/cliente.service';
-import { EstatisticasClientesComponent } from '../components/cliente-estatistcas/cliente-estatistcas.component';
-import { ListaClientesComponent } from '../components/lista-clientes/lista-clientes.component';
+import { Estatisticas } from '../components/cliente-estatistcas/cliente-estatistcas.component';
+import { ListaClientes } from '../components/lista-clientes/lista-clientes.component';
 
 @Component({
   selector: 'app-lista-clientes-page',
@@ -12,20 +12,22 @@ import { ListaClientesComponent } from '../components/lista-clientes/lista-clien
   imports: [
     CommonModule,
     RouterModule,
-    EstatisticasClientesComponent,
-    ListaClientesComponent
+    Estatisticas,
+    ListaClientes
   ],
   templateUrl: './cliente-page.component.html'
 })
-export class ListaClientesPage implements OnInit {
+export class ListaClientesPage {
+  private readonly clienteService = inject(ClienteService);
+
   clientes: ClienteSolar[] = [];
   carregando: boolean = true;
   erro: string = '';
 
-  constructor(private clienteService: ClienteService) {}
-
-  ngOnInit(): void {
-    this.carregarClientes();
+  constructor() {
+    effect(() => {
+      this.carregarClientes();
+    });
   }
 
   carregarClientes(): void {
